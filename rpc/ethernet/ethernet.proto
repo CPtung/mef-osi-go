@@ -1,0 +1,18 @@
+syntax = "proto3";
+package ethernet;
+option go_package = "./";
+
+// The greeting service definition.
+service Ethernet {
+    // Sends a greeting
+    rpc SayEthernet (EthernetRequest) returns (EthernetReply) {}
+}
+// The request message containing the user's name.
+message EthernetRequest {
+    optional string name = 1;
+}
+
+// The response message containing the greetings
+message EthernetReply {
+    optional string message = 1;
+}

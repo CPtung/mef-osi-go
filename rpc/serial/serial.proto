@@ -1,0 +1,31 @@
+syntax = "proto3";
+package serial;
+option go_package = "./";
+
+// The serial service definition.
+service Serial {
+    rpc GetSerial (SerialEmptyRequest) returns (SerialReply) {}
+    // Update config
+    rpc SetSerial (SerialRequest) returns (SerialReply) {}
+}
+
+message SerialEmptyRequest {}
+
+// The request message containing the user's name.
+message SerialRequest {
+    string Name = 1;
+}
+  
+// The response message containing the greetings
+message SerialReply {
+    repeated Profile Profiles = 1;
+}
+
+message Profile {
+    string Name = 1;
+    string Path = 2;
+    string Mode = 3;
+    optional string BaudRate = 4;
+    optional string Parity = 5;
+    optional string Stopbits = 6;
+}
