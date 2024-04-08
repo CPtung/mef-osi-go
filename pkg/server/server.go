@@ -7,27 +7,33 @@ import (
 	"path"
 	"syscall"
 
-	serial "github.com/MOXA-IPC/mef-osi-go/interface/serial"
+	serial "github.com/MOXA-IPC/mef-osi-go/osi/serial"
 	rpc_serial "github.com/MOXA-IPC/mef-osi-go/rpc/serial"
 	"google.golang.org/grpc"
 )
 
-var sockfd = "/run/mem/osi.sock"
+const (
+	SockFD = "/run/mem/osi.sock"
+)
 
 type Server struct {
 	listener net.Listener
 	server   *grpc.Server
 }
 
-func New() *Server {
-	if err := os.MkdirAll(path.Dir(sockfd), os.ModePerm); err != nil {
-		log.Printf("mkdirall error %s\n", err.Error())
+func New(sockType, sockPath string) *Server {
+	if sockType == "unix" {
+		if err := os.MkdirAll(path.Dir(sockPath), os.ModePerm); err != nil {
+			log.Printf("mkdirall error %s\n", err.Error())
+			return nil
+		}
+		syscall.Unlink(sockPath)
+	} else if sockType != "tcp" {
 		return nil
 	}
 
 	// start grpc reverse proxy socket
-	syscall.Unlink(sockfd)
-	sockProxy, err := net.Listen("unix", sockfd)
+	sockProxy, err := net.Listen(sockType, sockPath)
 	if err != nil {
 		log.Printf("failed to listen: %v\n", err)
 		return nil

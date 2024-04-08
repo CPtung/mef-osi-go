@@ -14,7 +14,13 @@ func NewService() rpc.SerialServer {
 }
 
 func (s *SerialImpl) GetSerial(ctx context.Context, empty *rpc.SerialEmptyRequest) (*rpc.SerialReply, error) {
-	return nil, nil
+	return &rpc.SerialReply{
+		Profiles: []*rpc.Profile{{
+			Name: "COM1",
+			Path: "/dev/ttyM0",
+			Mode: "RS232",
+		}},
+	}, nil
 }
 
 func (s *SerialImpl) SetSerial(ctx context.Context, request *rpc.SerialRequest) (*rpc.SerialReply, error) {
