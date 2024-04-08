@@ -33,7 +33,7 @@ This will regenerate the serial/serial.pb.go and serial/serial_grpc.pb.go files,
 Code for populating, serializing, and retrieving `Serial` message types.
 Generated client and server code.
 
-# Create gRPC service
+# Create OSI service
 Now, create a Go file under `interface/{MODULE_NAME}` to implement your gRPC service:
 ```go
 // interface/serial/serial.go
@@ -62,7 +62,7 @@ func (s *SerialImpl) SetSerial(ctx context.Context, request *rpc.SerialRequest) 
 
 ```
 
-# Register gRPC service
+# Register OSI service
 After the gRPC service code is ready, it has to register to the server.
 
 ```go
@@ -105,10 +105,44 @@ func (s *Server) Serve() {
 
 ```
 
-# Build and run your gRPC service
+# Build and run your OSI service
 Build and run your Go application:
 
 ```shell
 $ go build -o main cmd/main.go
 $ ./main
+```
+
+# Test your OSI service
+Follow the naming conventions, Go’s testing package comes with an expectation that any test file must have a `_test.go` suffix. For example, if we would have a OSI file called `serial.go` its test file must be named `serial_test.go`.
+
+Now you can create a test file under `osi_test` and assume we are going to test the `GetProfile` function of serial.
+```
+...
+
+func (s *OsiV1TestSuite) TestSerial_GetProfile() {
+    // The first, we need a OSI client that's connecting to the OSI mock server.
+	cli := client.New("localhost:8880")
+	assert.NotNil(s.T(), cli)
+	defer cli.Close()
+
+    // Bind serial gRPC to the client
+	serial := pb.NewSerialClient(cli)
+	assert.NotNil(s.T(), serial)
+
+	// Contact the server and print out its response.
+	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(3)*time.Second)
+	defer cancel()
+	r, err := serial.GetSerial(ctx, &pb.SerialEmptyRequest{})
+	if err != nil {
+		log.Fatalf("could not get serial: %v", err)
+	}
+	log.Printf("Greeting: %v", r.GetProfiles())
+}
+```
+
+As the test case done, you can use go test tool to show the result and even the test coverage.
+```shell
+$ go test -v -cover -coverpkg=./osi/...,./pkg/... -coverprofile=coverage.out ./osi_test
+$ go tool cover -func coverage.out
 ```
