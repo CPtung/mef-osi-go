@@ -117,28 +117,29 @@ $ ./main
 Follow the naming conventions, Go’s testing package comes with an expectation that any test file must have a `_test.go` suffix. For example, if we would have a OSI file called `serial.go` its test file must be named `serial_test.go`.
 
 Now you can create a test file under `osi_test` and assume we are going to test the `GetProfile` function of serial.
-```
+```go
 ...
 
 func (s *OsiV1TestSuite) TestSerial_GetProfile() {
     // The first, we need a OSI client that's connecting to the OSI mock server.
-	cli := client.New("localhost:8880")
-	assert.NotNil(s.T(), cli)
-	defer cli.Close()
+    cli := client.New("localhost:8880")
+    assert.NotNil(s.T(), cli)
+    defer cli.Close()
 
     // Bind serial gRPC to the client
-	serial := pb.NewSerialClient(cli)
-	assert.NotNil(s.T(), serial)
+    serial := pb.NewSerialClient(cli)
+    assert.NotNil(s.T(), serial)
 
 	// Contact the server and print out its response.
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(3)*time.Second)
-	defer cancel()
-	r, err := serial.GetSerial(ctx, &pb.SerialEmptyRequest{})
-	if err != nil {
-		log.Fatalf("could not get serial: %v", err)
-	}
-	log.Printf("Greeting: %v", r.GetProfiles())
+    ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(3)*time.Second)
+    defer cancel()
+    r, err := serial.GetSerial(ctx, &pb SerialEmptyRequest{})
+    if err != nil {
+        log.Fatalf("could not get serial: %v", err)
+    }
+    log.Printf("Greeting: %v", r.GetProfiles())
 }
+
 ```
 
 As the test case done, you can use go test tool to show the result and even the test coverage.
